@@ -3,7 +3,7 @@ from email.mime.text import MIMEText
 
 # Set up your email and password
 email_address = "lokranjan03@gmail.com"
-password = "Lokranjan@03"
+password = ""
 
 # Set up the recipient email address
 recipient_email = today_mail
