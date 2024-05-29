@@ -1,35 +1,55 @@
-import smtplib
-from email.mime.text import MIMEText
+from database import Database
+from mail_sender import EmailSender
 
-# Set up your email and password
-email_address = "lokranjan03@gmail.com"
-password = ""
+def create_email_body(name, closeness_factor):
+    if closeness_factor > 7:
+        return (f"My heartiest birthday wishes to you, {name}. May god bless you with happiness and success in all your "
+                f"endeavours. My best wishes to you. "
+                f"\nRegards,\nLokranjan")
+    else:
+        return f"Happy Birthday, {name}! Have a great day!\n\nRegards,\nLokranjan"
 
-# Set up the recipient email address
-recipient_email = today_mail
+def main():
+    print("Starting the automatic birthday wisher script....\n")
+    try:
+        db = Database()
+        print("Database Connection established")
+    except Exception as e:
+        print(f"Failed to connect to database : {e}")
+        return
 
-# Create the email content
-subject = "Hello from Python!"
-body = (f"My heartiest birthday wishes to you, {name}. May god bless you with happiness and success in all your "
-        f"endeavours. My best wishes to you. "
-        f"Regards,"
-        f"Lokranjan")
+    try:
+        print("came here")
+        email_sender = EmailSender()
+        print("Email sender initialised")
+    except Exception as e:
+        print(f"Failed to initialise email sender : {e}")
+        return
 
-# Connect to the SMTP server
-server = smtplib.SMTP("smtp.example.com", 587)
-server.starttls()
+    try:
+        friends = db.get_birthdays_today()
+        print(f"Found {len(friends)} friends with birthdays today")
+        if len(friends) == 0:
+            print("No Birthday's found for today!")
+    except Exception as e:
+        print("Error fetching birthdays")
+        email_sender.close()
+        db.close()
+        return
 
-# Log in to your email account
-server.login(email_address, password)
+    for friend in friends:
+        name, email, closeness_factor = friend
+        subject = "Happy Birthday!"
+        body = create_email_body(name, closeness_factor)
+        try:
+            email_sender.send_email(email, subject, body)
+            print(f"Sent mail to {name} ({email}).")
+        except Exception as e:
+            print(f"Failed to send email to {name} ({email}) : {e}")
 
-# Create the email message
-message = MIMEText(body)
-message["Subject"] = subject
-message["From"] = email_address
-message["To"] = recipient_email
+    email_sender.close()
+    db.close()
+    print("Finished today's work")
 
-# Send the email
-server.sendmail(email_address, recipient_email, message.as_string())
-
-# Quit the server
-server.quit()
+if __name__ == "__main__":
+    main()
