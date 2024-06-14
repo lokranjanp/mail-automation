@@ -1,16 +1,16 @@
 from database import Database
 from mail_sender import EmailSender
+from random_texts import create_mail_body
 
 def create_email_body(name, closeness_factor):
     if closeness_factor > 7:
-        return (f"My heartiest birthday wishes to you, {name}. May god bless you with happiness and success in all your "
-                f"endeavours. My best wishes to you. "
-                f"\nRegards,\nLokranjan")
+        mail_body = create_mail_body(name)
+        return mail_body
     else:
         return f"Happy Birthday, {name}! Have a great day!\n\nRegards,\nLokranjan"
 
 def main():
-    print("Starting the automatic birthday wisher script....\n")
+    print("Starting the automatic script....\n")
     try:
         db = Database()
         print("Database Connection established")
@@ -19,7 +19,6 @@ def main():
         return
 
     try:
-        print("came here")
         email_sender = EmailSender()
         print("Email sender initialised")
     except Exception as e:
@@ -51,5 +50,7 @@ def main():
     db.close()
     print("Finished today's work")
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
+
+print(create_email_body("puli",9))
